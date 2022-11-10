@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 require('dotenv').config();
 
@@ -19,7 +19,9 @@ async function run() {
 
     try {
         const serviceCollection = client.db('kaPhotography').collection('services');
+        const reviewCollection = client.db('kaPhotography').collection('reviews');
 
+        // services api
         app.get('/services', async (req, res) => {
             const quarry = {}
             const cursor = serviceCollection.find(quarry)
@@ -28,9 +30,22 @@ async function run() {
         })
         app.get('/services/3', async (req, res) => {
             const quarry = {}
-            const cursor = serviceCollection.find(quarry).limit(3)
+            const cursor = serviceCollection.find(quarry).limit(3);
             const services = await cursor.toArray();
             res.send(services);
+        })
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const quarry = { _id: ObjectId(id) };
+            const services = await serviceCollection.findOne(quarry);
+            res.send(services);
+        })
+
+        //review api
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
         })
     }
     finally {

@@ -30,7 +30,7 @@ async function run() {
         })
         app.get('/services/3', async (req, res) => {
             const quarry = {}
-            const cursor = serviceCollection.find(quarry).limit(3);
+            const cursor = serviceCollection.find(quarry).sort({ $natural: -1 }).limit(3);
             const services = await cursor.toArray();
             res.send(services);
         })
@@ -39,6 +39,11 @@ async function run() {
             const quarry = { _id: ObjectId(id) };
             const services = await serviceCollection.findOne(quarry);
             res.send(services);
+        })
+        app.post('/services', async (req, res) => {
+            const services = req.body;
+            const result = await serviceCollection.insertOne(services);
+            res.send(result);
         })
 
         //review api
@@ -54,11 +59,35 @@ async function run() {
                     service: req.query.id
                 }
             }
-            const cursor = reviewCollection.find(quarry);
+            const cursor = reviewCollection.find(quarry).sort({ $natural: -1 });
             const reviews = await cursor.toArray();
             res.send(reviews);
 
         })
+
+        app.get('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const quarry = { _id: ObjectId(id) };
+            const result = await reviewCollection.findOne(quarry);
+            res.send(result);
+        })
+
+        app.patch('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const review = req.body.upReview;
+            console.log(review.reviewMassage);
+            const quarry = { _id: ObjectId(id) };
+
+            const updateDoc = {
+                $set: {
+                    reviewMassage: review.reviewMassage,
+                    rating: review.rating
+                }
+            }
+            const result = await reviewCollection.updateOne(quarry, updateDoc);
+            res.send(result);
+        })
+
         app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);

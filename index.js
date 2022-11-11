@@ -42,6 +42,23 @@ async function run() {
         })
 
         //review api
+        app.get('/reviews', async (req, res) => {
+            let quarry = {}
+            if (req.query.email) {
+                quarry = {
+                    userEmail: req.query.email
+                }
+            }
+            if (req.query.id) {
+                quarry = {
+                    service: req.query.id
+                }
+            }
+            const cursor = reviewCollection.find(quarry);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+
+        })
         app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);

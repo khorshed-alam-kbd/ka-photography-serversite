@@ -95,8 +95,8 @@ async function run() {
 
         app.patch('/reviews/:id', async (req, res) => {
             const id = req.params.id;
-            const review = req.body.upReview;
-            console.log(review.reviewMassage);
+            const review = req.body;
+            console.log(review);
             const quarry = { _id: ObjectId(id) };
 
             const updateDoc = {
